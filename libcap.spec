@@ -1,12 +1,12 @@
 Name:     libcap
-Version:  2.25
-Release:  14
+Version:  2.27
+Release:  1
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
 Source0:  https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/%{name}-%{version}.tar.gz
 
-Patch1: %{name}-2.25-buildflags.patch
+Patch1:   libcap-2.25-buildflags.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -67,6 +67,9 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Mon Oct 14 2019 openEuler Buildteam <buildteam@openeuler.org> - 2.27-1
+- update to 2.27
+
 * Sun Sep 29 2019 openEuler Buildteam <buildteam@openeuler.org> - 2.25-14
 - Fix bugfix of missing pam_cap.so
 
