@@ -1,0 +1,58 @@
+From 2f72ffb7c9f28fbd143010dd68730b73ad1596f4 Mon Sep 17 00:00:00 2001
+From: "Andrew G. Morgan" <morgan@kernel.org>
+Date: Sat, 2 May 2020 17:10:25 -0700
+Subject: [PATCH] Avoid segfaulting when the kernel is ahead of libcap.
+
+Fixes bug report from Heiner Kallweit:
+
+  https://bugzilla.kernel.org/show_bug.cgi?id=207549
+
+This bug was triggered when the kernel being run knows about
+more capabilities than the running build of libcap does. The
+issue is that in two places libcap assumed that _cap_names[]
+was long enough to name cap_max_bits() worth of capabilities.
+
+Signed-off-by: Andrew G. Morgan <morgan@kernel.org>
+---
+ libcap/cap_text.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/libcap/cap_text.c b/libcap/cap_text.c
+index 00fbbc6..8ea4b05 100644
+--- a/libcap/cap_text.c
++++ b/libcap/cap_text.c
+@@ -57,8 +57,9 @@ static char const *namcmp(char const *str, char const *nam)
+ }
+ 
+ /*
+- * forceall forces all of the named capabilities to be assigned the
+- * masked value, and zeroed otherwise.
++ * forceall forces all of the kernel named capabilities to be assigned
++ * the masked value, and zeroed otherwise. Note, if the kernel is ahead
++ * of libcap, the upper bits will be referred to by number.
+  */
+ static void forceall(__u32 *flat, __u32 value, unsigned blks)
+ {
+@@ -112,13 +113,16 @@ static int lookupname(char const **strp)
+ 	}
+ #else /* ie., ndef GPERF_DOWNCASE */
+ 	char const *s;
+-	unsigned n;
+-
+-	for (n = cap_max_bits(); n--; )
++	unsigned n = cap_max_bits();
++	if (n > __CAP_BITS) {
++	    n = __CAP_BITS;
++	}
++	while (n--) {
+ 	    if (_cap_names[n] && (s = namcmp(str.constp, _cap_names[n]))) {
+ 		*strp = s;
+ 		return n;
+ 	    }
++	}
+ #endif /* def GPERF_DOWNCASE */
+ 
+ 	return -1;   	/* No definition available */
+-- 
+2.27.GIT
+
