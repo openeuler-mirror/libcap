@@ -1,12 +1,13 @@
 Name:     libcap
 Version:  2.32
-Release:  1
+Release:  2
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
 Source0:  https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/%{name}-%{version}.tar.gz
 
-Patch6000:   libcap-buildflags.patch
+Patch0:   libcap-buildflags.patch
+Patch1:   backport-Avoid-segfaulting-when-the-kernel-is-ahead-of-libcap.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -67,6 +68,12 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Wed Aug 11 2021 panxiaohe<panxiaohe@huawei.com> - 2.32-2
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC: avoid segfaulting when the kernel is ahead of libcap
+
 * Thu Apr 16 2020 zhangchenfeng<zhangchenfeng1@huawei.com> - 2.32-1
 - Type:enhancement
 - ID:NA
