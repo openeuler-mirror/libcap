@@ -1,6 +1,6 @@
 Name:     libcap
 Version:  2.32
-Release:  2
+Release:  3
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
@@ -8,6 +8,8 @@ Source0:  https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/%{n
 
 Patch0:   libcap-buildflags.patch
 Patch1:   backport-Avoid-segfaulting-when-the-kernel-is-ahead-of-libcap.patch
+Patch2:   backport-capsh-better-error-handling-for-integer-parsing.patch
+Patch3:   backport-setcap-clean-up-error-handling-of-the-ns-rootid-argument.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -68,6 +70,13 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Mon Nov 8 2021 yixiangzhike <yixiangzhike007@163.com> - 2.32-3
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC: capsh better error handling for integer parsing
+        setcap clean up error handling of the ns rootid argument
+
 * Wed Aug 11 2021 panxiaohe<panxiaohe@huawei.com> - 2.32-2
 - Type:bugfix
 - ID:NA
