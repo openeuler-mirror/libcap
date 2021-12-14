@@ -1,15 +1,12 @@
 Name:     libcap
-Version:  2.32
-Release:  3
+Version:  2.61
+Release:  1
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
 Source0:  https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/%{name}-%{version}.tar.gz
 
 Patch0:   libcap-buildflags.patch
-Patch1:   Avoid-segfaulting-when-the-kernel-is-ahead-of-libcap.patch
-Patch2:   backport-capsh-better-error-handling-for-integer-parsing.patch
-Patch3:   backport-setcap-clean-up-error-handling-of-the-ns-rootid-argument.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -39,6 +36,9 @@ make install RAISE_SETFCAP=no DESTDIR=%{buildroot} LIBDIR=%{_libdir} SBINDIR=%{_
 mkdir -p %{buildroot}/%{_mandir}/man{2,3,8}
 mv -f doc/*.3 %{buildroot}/%{_mandir}/man3/
 chmod +x %{buildroot}/%{_libdir}/*.so.*
+
+%check
+%make_build COPTS="%{optflags}" test
 
 %pre
 
@@ -70,6 +70,9 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Thu Nov 25 2021 yixiangzhike <yixiangzhike007@163.com> - 2.61-1
+- update to 2.61
+
 * Mon Nov 8 2021 yixiangzhike <yixiangzhike007@163.com> - 2.32-3
 - capsh better error handling for integer parsing
 - setcap clean up error handling of the ns rootid argument
