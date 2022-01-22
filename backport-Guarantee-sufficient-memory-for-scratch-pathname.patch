@@ -1,0 +1,29 @@
+From 9d8eaab7f74cf1d925910901e5181173ab11d14d Mon Sep 17 00:00:00 2001
+From: "Andrew G. Morgan" <morgan@kernel.org>
+Date: Wed, 28 Oct 2020 06:59:36 -0700
+Subject: Guarantee sufficient memory for scratch pathname
+
+Fix a malloc bug with single entry/short PATHs in capsh code for "=="
+support.
+
+Signed-off-by: Andrew G. Morgan <morgan@kernel.org>
+---
+ progs/capsh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/progs/capsh.c b/progs/capsh.c
+index 95c02fd..6bc54bf 100644
+--- a/progs/capsh.c
++++ b/progs/capsh.c
+@@ -366,7 +366,7 @@ static char *find_self(const char *arg0)
+     }
+ 
+     parts = strdup(path);
+-    scratch = malloc(1+strlen(path));
++    scratch = malloc(2+strlen(path)+strlen(arg0));
+     if (parts == NULL || scratch == NULL) {
+         fprintf(stderr, "insufficient memory for path building\n");
+ 	exit(1);
+-- 
+cgit 1.2.3-1.el7
+
