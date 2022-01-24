@@ -1,0 +1,148 @@
+From 68240b124cc62744a7a412a7afc85b5c56a48e14 Mon Sep 17 00:00:00 2001
+From: "Andrew G. Morgan" <morgan@kernel.org>
+Date: Tue, 27 Oct 2020 14:56:34 -0700
+Subject: If needed search PATH for capsh (==) self-execution.
+
+This addresses the following bug:
+
+  https://bugzilla.kernel.org/show_bug.cgi?id=209873
+
+Namely, the following didn't previously work:
+
+  PATH=/sbin capsh == --print
+
+Signed-off-by: Andrew G. Morgan <morgan@kernel.org>
+---
+ doc/capsh.1        | 14 ++++++++++---
+ progs/capsh.c      | 51 ++++++++++++++++++++++++++++++++++++++++++++--
+ progs/quicktest.sh |  7 +++++++
+ 3 files changed, 67 insertions(+), 5 deletions(-)
+
+diff --git a/doc/capsh.1 b/doc/capsh.1
+index 1e28b59..aee44d5 100644
+--- a/doc/capsh.1
++++ b/doc/capsh.1
+@@ -1,4 +1,4 @@
+-.TH CAPSH 1 "2020-01-07" "libcap 2" "User Commands"
++.TH CAPSH 1 "2020-10-27" "libcap 2" "User Commands"
+ .SH NAME
+ capsh \- capability shell wrapper
+ .SH SYNOPSIS
+@@ -32,7 +32,15 @@ Execute
+ .B capsh
+ again with remaining arguments. Useful for testing
+ .BR exec ()
+-behavior.
++behavior. Note, PATH is searched when the running
++.B capsh
++was found via the shell's PATH searching. If the
++.B exec
++occurs after a
++.BI \-\-chroot= /some/path
++argument the PATH located binary may not be resolve to the same binary
++as that running initially. This behavior is an intented feature as it
++can complete the chroot transition.
+ .TP
+ .BI --caps= cap-set
+ Set the prevailing process capabilities to those specified by
+@@ -165,7 +173,7 @@ header file. The program will list these bits via the
+ .B --print
+ command.
+ .TP
+-.BI --chroot= path
++.BI --chroot= /some/path
+ Execute the
+ .BR chroot (2)
+ system call with the new root-directory (/) equal to
+diff --git a/progs/capsh.c b/progs/capsh.c
+index 68b657d..95c02fd 100644
+--- a/progs/capsh.c
++++ b/progs/capsh.c
+@@ -340,6 +340,49 @@ static void arg_change_amb(const char *arg_names, cap_flag_value_t set)
+     free(names);
+ }
+ 
++/*
++ * find_self locates and returns the full pathname of the named binary
++ * that is running. Importantly, it looks in the context of the
++ * prevailing CHROOT. Further, it does not fail over to invoking a
++ * shell if the target binary looks like something other than a
++ * executable. If an executable is not found, the function terminates
++ * the program with an error.
++ */
++static char *find_self(const char *arg0)
++{
++    int i;
++    char *parts, *dir, *scratch;
++    const char *path;
++
++    for (i = strlen(arg0)-1; i >= 0 && arg0[i] != '/'; i--);
++    if (i >= 0) {
++        return strdup(arg0);
++    }
++
++    path = getenv("PATH");
++    if (path == NULL) {
++        fprintf(stderr, "no PATH environment variable found for re-execing\n");
++	exit(1);
++    }
++
++    parts = strdup(path);
++    scratch = malloc(1+strlen(path));
++    if (parts == NULL || scratch == NULL) {
++        fprintf(stderr, "insufficient memory for path building\n");
++	exit(1);
++    }
++
++    for (i=0; (dir = strtok(parts, ":")); parts = NULL) {
++        sprintf(scratch, "%s/%s", dir, arg0);
++	if (access(scratch, X_OK) == 0) {
++            return scratch;
++	}
++    }
++
++    fprintf(stderr, "unable to find executable '%s' in PATH\n", arg0);
++    exit(1);
++}
++
+ int main(int argc, char *argv[], char *envp[])
+ {
+     pid_t child;
+@@ -799,10 +842,14 @@ int main(int argc, char *argv[], char *envp[])
+ 	} else if (!strcmp("--print", argv[i])) {
+ 	    arg_print();
+ 	} else if ((!strcmp("--", argv[i])) || (!strcmp("==", argv[i]))) {
+-	    argv[i] = strdup(argv[i][0] == '-' ? "/bin/bash" : argv[0]);
++           if (argv[i][0] == '=') {
++               argv[i] = find_self(argv[0]);
++           } else {
++               argv[i] = strdup("/bin/bash");
++           }
+ 	    argv[argc] = NULL;
+ 	    execve(argv[i], argv+i, envp);
+-	    fprintf(stderr, "execve /bin/bash failed!\n");
++	    fprintf(stderr, "execve '%s' failed!\n", argv[i]);
+ 	    exit(1);
+ 	} else if (!strncmp("--has-p=", argv[i], 8)) {
+ 	    cap_value_t cap;
+diff --git a/progs/quicktest.sh b/progs/quicktest.sh
+index 96f9929..8ecaccf 100755
+--- a/progs/quicktest.sh
++++ b/progs/quicktest.sh
+@@ -44,6 +44,13 @@ pass_capsh () {
+ 
+ pass_capsh --print
+ 
++# Validate that PATH expansion works
++PATH=$(/bin/pwd)/junk:$(/bin/pwd) capsh == == == --modes
++if [ $? -ne 0 ]; then
++    echo "Failed to execute capsh consecutively for capability manipulation"
++    exit 1
++fi
++
+ # Make a local non-setuid-0 version of capsh and call it privileged
+ cp ./capsh ./privileged && /bin/chmod -s ./privileged
+ if [ $? -ne 0 ]; then
+-- 
+2.27.0
+

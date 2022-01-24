@@ -1,6 +1,6 @@
 Name:     libcap
 Version:  2.32
-Release:  3
+Release:  4
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
@@ -10,6 +10,8 @@ Patch0:   libcap-buildflags.patch
 Patch1:   backport-Avoid-segfaulting-when-the-kernel-is-ahead-of-libcap.patch
 Patch2:   backport-capsh-better-error-handling-for-integer-parsing.patch
 Patch3:   backport-setcap-clean-up-error-handling-of-the-ns-rootid-argument.patch
+Patch4:   backport-If-needed-search-PATH-for-capsh-self-execution.patch
+Patch5:   backport-Guarantee-sufficient-memory-for-scratch-pathname.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -70,6 +72,13 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Sat Jan 22 2022 yixiangzhike <yixiangzhike007@163.com> - 2.32-4
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC: If needed search PATH for capsh (==) self-execution
+        Guarantee sufficient memory for scratch pathname
+
 * Mon Nov 8 2021 yixiangzhike <yixiangzhike007@163.com> - 2.32-3
 - Type:bugfix
 - ID:NA
