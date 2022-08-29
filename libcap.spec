@@ -1,12 +1,13 @@
 Name:     libcap
 Version:  2.61
-Release:  1
+Release:  2
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
 Source0:  https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/%{name}-%{version}.tar.gz
 
 Patch0:   libcap-buildflags.patch
+Patch1:   Fix-syntax-error-in-DEBUG-protected-setcap.c-code.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -70,6 +71,9 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Sat Aug 27 2022 yixiangzhike <yixiangzhike007@163.com> - 2.61-2
+- fix syntax error in DEBUG protected setcap.c code
+
 * Fri Dec 24 2021 yixiangzhike <yixiangzhike007@163.com> - 2.61-1
 - update to 2.61
 
