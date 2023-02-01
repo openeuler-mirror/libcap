@@ -1,16 +1,12 @@
 Name:     libcap
-Version:  2.61
-Release:  4
+Version:  2.66
+Release:  1
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
 Source0:  https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/%{name}-%{version}.tar.gz
 
 Patch0:   libcap-buildflags.patch
-Patch1:   Fix-syntax-error-in-DEBUG-protected-setcap.c-code.patch
-Patch2:   backport-psx-free-allocated-memory-at-exit.patch
-Patch3:   backport-Avoid-a-deadlock-in-forked-psx-thread-exit.patch
-Patch4:   backport-getpcaps-catch-PID-parsing-errors.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -74,6 +70,9 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Mon Jan 30 2023 wangyunjia <yunjia.wang@huawei.com> - 2.66-1
+- update version to 2.66
+
 * Tue Nov 1 2022 yixiangzhike <yixiangzhike007@163.com> - 2.61-4
 - backport upstream patch
 
