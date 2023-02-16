@@ -1,6 +1,6 @@
 Name:     libcap
 Version:  2.32
-Release:  4
+Release:  5
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
@@ -12,6 +12,7 @@ Patch2:   backport-capsh-better-error-handling-for-integer-parsing.patch
 Patch3:   backport-setcap-clean-up-error-handling-of-the-ns-rootid-argument.patch
 Patch4:   backport-If-needed-search-PATH-for-capsh-self-execution.patch
 Patch5:   backport-Guarantee-sufficient-memory-for-scratch-pathname.patch
+Patch6:   backport-getpcaps-catch-PID-parsing-errors.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -72,6 +73,10 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Thu Feb 16 2023 zhangguangzhi <zhangguangzhi3@huawei.com> - 2.32-5
+- backport patch
+  backport getpcaps catch PID parsing errors
+
 * Sat Jan 22 2022 yixiangzhike <yixiangzhike007@163.com> - 2.32-4
 - Type:bugfix
 - ID:NA
