@@ -1,12 +1,13 @@
 Name:     libcap
 Version:  2.66
-Release:  1
+Release:  2
 Summary:  A library for getting and setting POSIX.1e draft 15 capabilities        
 License:  GPLv2
 URL:      https://sites.google.com/site/fullycapable
 Source0:  https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/%{name}-%{version}.tar.gz
 
 Patch0:   libcap-buildflags.patch
+Patch1:   support-specify-cc.patch
 
 BuildRequires: libattr-devel pam-devel perl-interpreter gcc
 
@@ -70,6 +71,9 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
 %{_mandir}/man8/*.gz
 
 %changelog
+* Sun Apr 16 2023 jammyjellyfish <jammyjellyfish255@outlook.com> - 2.66-2
+- Support specify CC
+
 * Mon Jan 30 2023 wangyunjia <yunjia.wang@huawei.com> - 2.66-1
 - update version to 2.66
 
